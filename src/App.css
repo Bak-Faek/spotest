@@ -1,0 +1,23 @@
+
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.artist {
+  display: flex;
+  border: solid red 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+
+.artistDiv{
+  display: flex;
+  flex-direction: column;
+  width: 20vw;
+  align-items: center;
+  justify-content: center;
+}
