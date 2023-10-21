@@ -1,92 +1,67 @@
-import {useEffect, useState} from "react";
-import './App.css';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import "./App.css";
+import Searcher from "./Searcher";
 
 function App() {
-    const CLIENT_ID = "621e618aa9614324b5834627d9e09ec7"
-    const REDIRECT_URI = "http://localhost:5173/"
-    const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize"
-    const RESPONSE_TYPE = "token"
+  const CLIENT_ID = "621e618aa9614324b5834627d9e09ec7";
+  const REDIRECT_URI = "http://localhost:5173/";
+  const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
+  const RESPONSE_TYPE = "token";
 
-    const [token, setToken] = useState("")
-    const [searchKey, setSearchKey] = useState("")
-    const [artists, setArtists] = useState([])
+  const [token, setToken] = useState("");
 
-    // const getToken = () => {
-    //     let urlParams = new URLSearchParams(window.location.hash.replace("#","?"));
-    //     let token = urlParams.get('access_token');
-    // }
+  // const getToken = () => {
+  //     let urlParams = new URLSearchParams(window.location.hash.replace("#","?"));
+  //     let token = urlParams.get('access_token');
+  // }
 
-    useEffect(() => {
-        const hash = window.location.hash
-        let token = window.localStorage.getItem("token")
+  useEffect(() => {
+    const hash = window.location.hash;
+    let token = window.localStorage.getItem("token");
 
-        // getToken()
-
-
-        if (!token && hash) {
-            token = hash.substring(1).split("&").find(elem => elem.startsWith("access_token")).split("=")[1]
-
-            window.location.hash = ""
-            window.localStorage.setItem("token", token)
-        }
-
-        setToken(token)
-
-    }, [])
-
-    const logout = () => {
-        setToken("")
-        window.localStorage.removeItem("token")
+    if (hash && hash) {
+      token = hash
+        .substring(1)
+        .split("&")
+        .find((elem) => elem.startsWith("access_token"))
+        .split("=")[1];
+      window.location.hash = "";
+      window.localStorage.setItem("token", token);
     }
 
-    const searchArtists = async (e) => {
-        e.preventDefault()
-        const {data} = await axios.get("https://api.spotify.com/v1/search", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-            params: {
-                q: searchKey,
-                type: "artist"
-            }
-        })
+    setToken(token);
+  }, []);
 
-        setArtists(data.artists.items)
-    }
+  const logout = () => {
+    setToken("");
+    window.localStorage.removeItem("token");
+  };
 
-    const renderArtists = () => {
-        return artists.map(artist => (
-            <div className="artistDiv" key={artist.id}>
-                {artist.images.length ? <img width={"20%"} src={artist.images[0].url} alt=""/> : <div>No Image</div>}
-                {artist.name}
+  return (
+    <div className="App">
+      <header className="App-header">
+        <div className="SearchContainer">
+          <h2>Searchly</h2>
+          {!token ? (
+            <div>
+              <a
+                href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}
+              >
+                Login to Spotify
+              </a>
             </div>
-        ))
-    }
-
-    return (
-        <div className="App">
-            <header className="App-header">
-                <h1>Spotify React</h1>
-                {!token ?
-                    <a href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}>Login
-                        to Spotify</a>
-                    : <button onClick={logout}>Logout</button>}
-
-                {token ?
-                    <form onSubmit={searchArtists}>
-                        <input type="text" onChange={e => setSearchKey(e.target.value)}/>
-                        <button type={"submit"}>Search</button>
-                    </form>
-
-                    : <h2>Please login</h2>
-                }
-                <div className= "artist">
-                {renderArtists()}
-                </div>
-            </header>
+          ) : (
+            <div>
+              <Searcher token={token} />
+              <button className="logOut" onClick={logout}>
+                Logout
+              </button>
+            </div>
+          )}
         </div>
-    );
+      </header>
+    </div>
+  );
 }
 
 export default App;
